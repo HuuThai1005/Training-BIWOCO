@@ -1,23 +1,26 @@
-type User = {
-  id: number
-  email: string
-  password: string
+import { db } from "../db";
+import { users } from "../db/schema";
+import { eq } from "drizzle-orm";
+
+export type CreateUserInput = {
+    email: string
+    password: string 
 }
 
-const users: User[] = []
-
 export const userRepo = {
-  create(data: Omit<User, "id">): User {
-    const user = {
-      id: Date.now(),
-      ...data
-    }
+    async findByEmail(email: string) {
+        const result = await db.select().from(users).where(eq(users.email, email)).limit(1)
+        return result[0] ?? null
 
-    users.push(user)
-    return user
-  },
+    },
 
-  findByEmail(email: string): User | undefined {
-    return users.find(u => u.email === email)
-  }
+    async findById(id: number) {
+        const result = await db.select().from(users).where(eq(users.id, id)).limit(1)
+        return result[0] ?? null
+    },
+
+    async create(data: CreateUserInput) {
+    const result = await db.insert(users).values(data).returning()
+    return result[0]
+}
 }

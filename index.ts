@@ -1,12 +1,12 @@
-import { loginHandler } from "./handlers/user.handler";
+import 'dotenv/config';
+import { drizzle } from "drizzle-orm/node-postgres";
+import pkg from "pg";
+import * as schema from "./schema";
 
-export const main = async() =>{
-    const res = await loginHandler({
-        email: "thainh@gmail.com",
-        password: "123456789"
-    })
+const { Pool } = pkg;
 
-    console.log(res);
-}
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
 
-main()
+export const db = drizzle(pool, { schema });
